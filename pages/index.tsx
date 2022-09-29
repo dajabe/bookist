@@ -1,6 +1,8 @@
 import type { NextPage } from 'next'
 
 import PocketBase from 'pocketbase'
+import { useQuery } from 'react-query'
+
 
 import Head from 'next/head'
 import Image from 'next/image'
@@ -9,17 +11,31 @@ import { useEffect, useState } from 'react'
 
 
 const Home: NextPage = () => {
-  const [books, setBooks] = useState<object>()
+  // const [books, setBooks] = useState<object>()
+  const books = useQuery('books', async () => {
+    const res = await fetch('http://192.168.11.2:8090/api/collections/books/records?expand=authors')
+    console.log('response:', res)
+    if(!res.ok) {
+      throw new Error(res.status + ' - ' + res.statusText)
+    }
+    return res.json()
+  })
+  // console.log(books)
 
-  useEffect(() => {
-    fetch('http://192.168.11.2:8090/api/collections/books/records?expand=authors')
-      .then((res) => res.json())
-      .then((data) => setBooks(data))
-  },[])
-
-  if (books) {
-    console.log(books.items)
+  // useEffect(() => {
+  //   fetch('http://192.168.11.2:8090/api/collections/books/records?expand=authors')
+  //     .then((res) => res.json())
+  //     .then((data) => setBooks(data))
+  // },[])
+  if (books.isError) {
+    return <p>Cant fetch books: {books?.error?.message}</p>
   }
+
+  if (books.isLoading) {
+    return <p>Loading ...</p>
+  }
+
+
   return (
     <div className={styles.container}>
       <Head>
@@ -35,7 +51,7 @@ const Home: NextPage = () => {
         </h1>
 
         <div className={styles.grid}>
-          {books?.items.map((item) => <a href={item.url} className={styles.card} key={item.id}>
+          {books.data.items.map((item) => <a href={item.url} className={styles.card} key={item.id}>
             <h2>{item.title}</h2>
             <img src={item.cover} alt={item.title} height={200} />
             <ul>
