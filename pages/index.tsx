@@ -7,6 +7,7 @@ import { useQuery } from 'react-query'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import AddBook from '../components/AddBook'
 import { useEffect, useState } from 'react'
 
 
@@ -20,13 +21,9 @@ const Home: NextPage = () => {
     }
     return res.json()
   })
+
   // console.log(books)
 
-  // useEffect(() => {
-  //   fetch('http://192.168.11.2:8090/api/collections/books/records?expand=authors')
-  //     .then((res) => res.json())
-  //     .then((data) => setBooks(data))
-  // },[])
   if (books.isError) {
     return <p>Cant fetch books: {books?.error?.message}</p>
   }
@@ -35,7 +32,6 @@ const Home: NextPage = () => {
     return <p>Loading ...</p>
   }
 
-
   return (
     <div className={styles.container}>
       <Head>
@@ -43,7 +39,7 @@ const Home: NextPage = () => {
         <meta name="description" content="Bookist, your friendly book tracker" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
+      <AddBook />
       <main className={styles.main}>
 
         <h1 className={styles.title}>
@@ -51,7 +47,7 @@ const Home: NextPage = () => {
         </h1>
 
         <div className={styles.grid}>
-          {books.data.items.map((item) => <a href={item.url} className={styles.card} key={item.id}>
+          {books.data.items.map((item: any) => <a href={item.url} className={styles.card} key={item.id}>
             <h2>{item.title}</h2>
             <img src={item.cover} alt={item.title} height={200} />
             <ul>
